@@ -30,7 +30,7 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
-APPEND_SLASH = False
+APPEND_SLASH = True
 
 # Application definition
 
@@ -58,7 +58,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5500',sla
+    'http://localhost:5500',
     '*',
 ]
 
