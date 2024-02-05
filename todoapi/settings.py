@@ -59,6 +59,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5500',
+    'https://yourmixjnr.github.io/To-do_List_HTML-CSS-JS/',
     '*',
 ]
 
