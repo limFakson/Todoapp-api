@@ -30,7 +30,7 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
-APPEND_SLASH = True
+APPEND_SLASH = False
 
 # Application definition
 
