@@ -3,6 +3,8 @@ from django.http import JsonResponse
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
+
 
 from .seralizers import TaskSerializer
 from .models import Task
@@ -42,16 +44,20 @@ def taskCreate(request):
 
     return Response(serializer.data)
 
-
 @api_view(['PUT'])
 def taskUpdate(request, pk):
-    task = Task.objects.get(id=pk)
+    try:
+        task = Task.objects.get(id=pk)
+    except Task.DoesNotExist:
+        raise NotFound('Task not found')
+
     serializer = TaskSerializer(instance=task, data=request.data)
 
     if serializer.is_valid():
         serializer.save()
-
-    return Response(serializer.data)
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors, status=400)
 
 @api_view(['DELETE'])
 def taskDelete(request, pk):
