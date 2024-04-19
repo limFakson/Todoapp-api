@@ -13,55 +13,60 @@ from .models import Task
 @api_view(['GET'])
 def apiOverview(request):
     api_urls = {
-        'List' : '/task-list/',
-        'Detail View' : '/task-detail/<str:pk>/',
-        'Create' : '/task-create/',
-        'Update' : '/task-update/<str:pk>/',
-        'Delete' : '/task-delete /<str:pk>/',
+        'List' : '/task/(Request sent must be GET)',
+        'Detail View' : '/taskdetail/<str:pk>/(Request sent must be GET)',
+        'Create' : '/task/(Request sent must be POST)',
+        'Update' : '/taskdetail/<str:pk>/(Request sent must be PUT)',
+        'Delete' : '/taskdetail/<str:pk>/(Request sent must be DELETE)',
     }
 
     return Response(api_urls)
 
 
-@api_view(['GET'])
-def taskList(request):
-    tasks = Task.objects.all()
-    serializer = TaskSerializer(tasks, many=True)
-    return Response(serializer.data)
+@api_view(['GET', 'POST'])
+def task(request):
+    """
 
-@api_view(['GET'])
-def taskDetails(request, pk):
-    tasks = Task.objects.get(id=pk)
-    serializer = TaskSerializer(tasks, many=False)
-    return Response(serializer.data)
+    Handling GET and POST here
 
-@api_view(['POST'])
-def taskCreate(request):
-    serializer = TaskSerializer(data=request.data)
+    """
+    if request.method == 'GET':
+        tasks = Task.objects.all()
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = TaskSerializer(data=request.data)
 
-    if serializer.is_valid():
-        serializer.save()
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data)
+    return Response()
 
-    return Response(serializer.data)
-
-@api_view(['PUT'])
-def taskUpdate(request, pk):
+@api_view(['GET', 'PUT', 'DELETE'])
+def taskDetail(request, pk):
+    
     try:
         task = Task.objects.get(id=pk)
     except Task.DoesNotExist:
         raise NotFound('Task not found')
-
-    serializer = TaskSerializer(instance=task, data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
+    
+    if request.method == 'GET':
+        task = Task.objects.get(pk)
+        serializer = TaskSerializer(task, many=False)
         return Response(serializer.data)
-    else:
-        return Response(serializer.errors, status=400)
 
-@api_view(['DELETE'])
-def taskDelete(request, pk):
-    task = Task.objects.get(id=pk)
-    task.delete()
+    elif request.method == 'PUT':
+        serializer = TaskSerializer(instance=task, data=request.data)
 
-    return Response("Item sucessfully delete!")
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=400)
+    
+    elif request.method == 'DELETE':
+        task.delete()
+
+        return Response("Item sucessfully delete!")
+    

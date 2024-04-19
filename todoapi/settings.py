@@ -23,12 +23,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = "58e82890601bb3f43c0a147dbfd12e30"
+# os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = True
+# os.environ.get("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = ['todo-api-eh0i.onrender.com', 'localhost', '127.0.0.1']
+# os.environ.get("ALLOWED_HOSTS").split(" ")
 
 APPEND_SLASH = False
 
@@ -57,11 +60,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5500',
-    'https://yourmixjnr.github.io/To-do_List_HTML-CSS-JS/',
-    '*',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'https://yourmixjnr.github.io/To-do_List_HTML-CSS-JS/',
+#     'localhost'
+#     '127.0.0.1'
+#     '*',
+# ]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -96,13 +100,14 @@ DATABASES = {
     }
 }
 
-database_url = os.environ.get("DATABASE_URL")
+# database_url = "postgres://movie_data_user:Dh25mLFMXYgbFTQihX58UQQ3akHInylM@dpg-cmrr61821fec739tb0jg-a.oregon-postgres.render.com/movie_data"
+# # os.environ.get("DATABASE_URL")
 
-DATABASES = {
-    'default' : dj_database_url.config(
-        default = database_url
-    )
-}
+# DATABASES = {
+#     'default' : dj_database_url.config(
+#         default = database_url
+#     )
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
