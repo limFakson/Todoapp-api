@@ -47,7 +47,7 @@ def task(request):
 def taskDetail(request, pk):
     
     try:
-        task = Task.objects.get(id=pk)
+        task = Task.objects.get(pk=pk)
     except Task.DoesNotExist:
         raise NotFound('Task not found')
     
@@ -70,3 +70,4 @@ def taskDetail(request, pk):
 
         return Response("Item sucessfully delete!")
     
+    return Response()

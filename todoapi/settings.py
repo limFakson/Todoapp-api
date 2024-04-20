@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
 
 import dj_database_url
+
+config_file_path = "../.env"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,17 +26,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "58e82890601bb3f43c0a147dbfd12e30"
+SECRET_KEY = config("SECRET_KEY")
 # os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG")
 # os.environ.get("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ['todo-api-eh0i.onrender.com', 'localhost', '127.0.0.1']
+#allowed host config import
+allowed_hosts_str = config('ALLOWED_HOSTS', default='localhost')
+
+# Split the string into a list of allowed hosts
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(' ')]
+
 # os.environ.get("ALLOWED_HOSTS").split(" ")
 
-APPEND_SLASH = False
+APPEND_SLASH = True
 
 # Application definition
 
