@@ -10,19 +10,33 @@ from .seralizers import TaskSerializer
 from .models import Task
 
 # Create your views here.
+# Api overview of all api in the backend
 @api_view(['GET'])
 def apiOverview(request):
     api_urls = {
         'List' : '/task/(Request sent must be GET)',
-        'Detail View' : '/taskdetail/<str:pk>/(Request sent must be GET)',
+        'Detail View' : '/taskdetail/<int:pk>/(Request sent must be GET)',
         'Create' : '/task/(Request sent must be POST)',
-        'Update' : '/taskdetail/<str:pk>/(Request sent must be PUT)',
         'Delete' : '/taskdetail/<str:pk>/(Request sent must be DELETE)',
+        'Update' : '/taskdetail/<int:pk>/(Request sent must be PUT)',
     }
 
     return Response(api_urls)
 
 
+#Authetication viewset
+@api_view(['GET', 'POST'])
+def userRegistration(request):
+    """
+    Handling Auth of the Users
+    
+    """
+
+    if request.method == 'GET':
+        return Response()
+    
+
+#Task viewsets
 @api_view(['GET', 'POST'])
 def task(request):
     """
@@ -52,12 +66,11 @@ def taskDetail(request, pk):
         raise NotFound('Task not found')
     
     if request.method == 'GET':
-        task = Task.objects.get(pk)
-        serializer = TaskSerializer(task, many=False)
+        serializer = TaskSerializer(task)
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = TaskSerializer(instance=task, data=request.data)
+        serializer = TaskSerializer(task, data=request.data)
 
         if serializer.is_valid():
             serializer.save()
