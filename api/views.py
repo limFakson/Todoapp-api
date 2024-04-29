@@ -7,49 +7,57 @@ from rest_framework.exceptions import NotFound
 
 
 from .seralizers import TaskSerializer
+from .seralizers import UserSerializer
 from .models import Task
+
 
 # Create your views here.
 # Api overview of all api in the backend
-@api_view(['GET'])
+@api_view(["GET"])
 def apiOverview(request):
     api_urls = {
-        'List' : '/task/(Request sent must be GET)',
-        'Detail View' : '/taskdetail/<int:pk>/(Request sent must be GET)',
-        'Create' : '/task/(Request sent must be POST)',
-        'Delete' : '/taskdetail/<str:pk>/(Request sent must be DELETE)',
-        'Update' : '/taskdetail/<int:pk>/(Request sent must be PUT)',
+        "List": "/task/(Request sent must be GET)",
+        "Detail View": "/taskdetail/<int:pk>/(Request sent must be GET)",
+        "Create": "/task/(Request sent must be POST)",
+        "Delete": "/taskdetail/<str:pk>/(Request sent must be DELETE)",
+        "Update": "/taskdetail/<int:pk>/(Request sent must be PUT)",
     }
 
     return Response(api_urls)
 
 
-#Authetication viewset
-@api_view(['GET', 'POST'])
-def userRegistration(request):
+# Authetication viewset
+@api_view(["GET", "POST"])
+def userAuthetication(request):
     """
     Handling Auth of the Users
-    
+
     """
 
-    if request.method == 'GET':
-        return Response()
-    
+    if request.method == "POST":
+        serializer = UserSerializer(request.POST)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(serializer.data, status=200)
+        else:
+            return Response(serializer.errors, status=400)
+    return Response()
 
-#Task viewsets
-@api_view(['GET', 'POST'])
+
+# Task viewsets
+@api_view(["GET", "POST"])
 def task(request):
     """
 
     Handling GET and POST here
 
     """
-    if request.method == 'GET':
+    if request.method == "GET":
         tasks = Task.objects.all()
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
-    
-    elif request.method == 'POST':
+
+    elif request.method == "POST":
         serializer = TaskSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -57,19 +65,20 @@ def task(request):
         return Response(serializer.data)
     return Response()
 
-@api_view(['GET', 'PUT', 'DELETE'])
+
+@api_view(["GET", "PUT", "DELETE"])
 def taskDetail(request, pk):
-    
+
     try:
         task = Task.objects.get(pk=pk)
     except Task.DoesNotExist:
-        raise NotFound('Task not found')
-    
-    if request.method == 'GET':
+        raise NotFound("Task not found")
+
+    if request.method == "GET":
         serializer = TaskSerializer(task)
         return Response(serializer.data)
 
-    elif request.method == 'PUT':
+    elif request.method == "PUT":
         serializer = TaskSerializer(task, data=request.data)
 
         if serializer.is_valid():
@@ -77,10 +86,10 @@ def taskDetail(request, pk):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=400)
-    
-    elif request.method == 'DELETE':
+
+    elif request.method == "DELETE":
         task.delete()
 
         return Response("Item sucessfully delete!")
-    
+
     return Response()
