@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
-
+from django.contrib.auth.models import User
 from .seralizers import TaskSerializer
 from .seralizers import UserSerializer
 from .models import Task
@@ -34,10 +34,15 @@ def userAuthetication(request):
 
     """
 
+    if request.method == "GET":
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
     if request.method == "POST":
-        serializer = UserSerializer(request.POST)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            serializer.save()
             return Response(serializer.data, status=200)
         else:
             return Response(serializer.errors, status=400)
