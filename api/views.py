@@ -1,16 +1,18 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.contrib.auth import authenticate
 
 from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_protect
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework import status
 
 from django.contrib.auth.models import User
 from .seralizers import TaskSerializer
 from .seralizers import UserSerializer
-from .models import Task
+from .models import Task, Goal
 
 
 # Create your views here.
@@ -18,28 +20,54 @@ from .models import Task
 @api_view(["GET"])
 def apiOverview(request):
     api_urls = {
-        "List": "/task/(Request sent must be GET)",
-        "Detail View": "/taskdetail/<int:pk>/(Request sent must be GET)",
-        "Create": "/task/(Request sent must be POST)",
-        "Delete": "/taskdetail/<str:pk>/(Request sent must be DELETE)",
-        "Update": "/taskdetail/<int:pk>/(Request sent must be PUT)",
+        "Register": "/auth/reg(request method sent POST)",
+        "Login": "/auth/login(request method sent POST)",
+        "List": "/task/(Request method sent GET)",
+        "Detail View": "/taskdetail/<int:pk>/(Request method sent GET)",
+        "Create": "/task/(Request method sent POST)",
+        "Delete": "/taskdetail/<str:pk>/(Request method sent DELETE)",
+        "Update": "/taskdetail/<int:pk>/(Request method sent PUT)",
     }
 
     return Response(api_urls)
 
 
-class CustomAuthToken(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
+# Login Authentication View
+@csrf_protect
+@api_view(["POST"])
+def userLogin(request):
+    credential = request.data.get("credential")
+    password = request.data.get("password")
+
+    if not credential or not password:
+        return Response(
+            {"message": "Invalid request. Both credential and password are required."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
+
+    is_email = "@" in credential
+
+    print(f"Credential: {credential}, Password: {password}, Is Email: {is_email}")
+
+    if is_email:
+        user = authenticate(request, email=credential, password=password)
+    else:
+        user = authenticate(request, username=credential, password=password)
+
+    if user is not None:
         token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key})
+        return Response(
+            {"message": "Login successful", "token": token.key},
+            status=status.HTTP_200_OK,
+        )
+    else:
+        return Response(
+            {"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
-# Authetication viewset
+# Registration Authetication view
+@csrf_protect
 @api_view(["GET", "POST"])
 def userAuthetication(request):
     """
@@ -55,14 +83,20 @@ def userAuthetication(request):
     if request.method == "POST":
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=200)
+            username = serializer.validated_data.get("username")
+            email = serializer.validated_data.get("email")
+            password = serializer.validated_data.get("password")
+            new_user = User.objects.create_user(
+                username=username, email=email, password=password
+            )
+            serializer_user = UserSerializer(new_user)
+            return Response(serializer_user.data, status=200)
         else:
             return Response(serializer.errors, status=400)
     return Response()
 
 
-# Task viewsets
+# Task views
 @api_view(["GET", "POST"])
 def task(request):
     """
@@ -84,6 +118,7 @@ def task(request):
     return Response()
 
 
+# Task Detail views
 @api_view(["GET", "PUT", "DELETE"])
 def taskDetail(request, pk):
 
