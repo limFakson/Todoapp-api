@@ -10,8 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 
 from django.contrib.auth.models import User
-from .seralizers import TaskSerializer
-from .seralizers import UserSerializer
+from .seralizers import TaskSerializer, UserSerializer, GoalSerializer
 from .models import Task, Goal
 
 
@@ -47,8 +46,6 @@ def userLogin(request):
 
     is_email = "@" in credential
 
-    print(f"Credential: {credential}, Password: {password}, Is Email: {is_email}")
-
     if is_email:
         user = authenticate(request, email=credential, password=password)
     else:
@@ -57,7 +54,7 @@ def userLogin(request):
     if user is not None:
         token, created = Token.objects.get_or_create(user=user)
         return Response(
-            {"message": "Login successful", "token": token.key},
+            {"message": "Login successful", "token": token.key, "user_id": user.id},
             status=status.HTTP_200_OK,
         )
     else:
@@ -96,16 +93,37 @@ def userAuthetication(request):
     return Response()
 
 
+@api_view(["GET", "POST"])
+def goal(request):
+    if request.method == "GET":
+        goals = Goal.objects.all()
+        serializer = GoalSerializer(goals, many=True)
+        return Response(serializer.data)
+
+    elif request.method == "POST":
+        serializer = GoalSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # Task views
 @api_view(["GET", "POST"])
-def task(request):
+def task(request, goal_id):
     """
 
     Handling GET and POST here
 
     """
+
+    try:
+        goal = Goal.objects.get(pk=goal_id)
+    except Goal.DoesNotExist:
+        return Response({"message": "Goal not found"}, status=status.HTTP_404_NOT_FOUND)
+
     if request.method == "GET":
-        tasks = Task.objects.all()
+        tasks = goal.tasks.all()
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
 
@@ -113,17 +131,22 @@ def task(request):
         serializer = TaskSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
-        return Response(serializer.data)
-    return Response()
+            serializer.save(goal=goal)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(
+        {"message": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+    )
 
 
 # Task Detail views
 @api_view(["GET", "PUT", "DELETE"])
-def taskDetail(request, pk):
+def taskDetail(request, goal_id, pk):
 
     try:
-        task = Task.objects.get(pk=pk)
+        task = Task.objects.get(goal_id=goal_id, pk=pk)
     except Task.DoesNotExist:
         raise NotFound("Task not found")
 

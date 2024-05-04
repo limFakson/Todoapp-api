@@ -17,7 +17,7 @@ class Goal(models.Model):
 
 class Task(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    goal = models.ForeignKey(Goal, on_delete=models.CASCADE, null=False)
+    goal = models.ForeignKey(Goal, related_name="tasks", on_delete=models.CASCADE)
     task = models.CharField(max_length=500)
     limit = models.TimeField()
     status = models.BooleanField(default=False, blank=True, null=True)

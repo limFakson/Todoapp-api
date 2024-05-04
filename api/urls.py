@@ -3,8 +3,9 @@ from . import views
 
 urlpatterns = [
     path("overview/", views.apiOverview, name="api-overview"),
-    path("task/", views.task, name="task"),
-    path("task/<int:pk>/", views.taskDetail, name="taskdetail"),
+    path("goals/", views.goal, name="goal"),
+    path("goals/<int:goal_id>/tasks/", views.task, name="task"),
+    path("goals/<int:goal_id>/task/<int:pk>/", views.taskDetail, name="taskdetail"),
     path("auth/reg", views.userAuthetication, name="register"),
     path("auth/login", views.userLogin, name="clogin"),
 ]

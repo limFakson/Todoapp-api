@@ -13,13 +13,33 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password"]
 
 
-class GoalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Goal
-        fieds = ["author", "goal", "status"]
-
-
 class TaskSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Task
-        fields = ["author", "goal", "task", "limit", "status"]
+        fields = [
+            "id",
+            "author",
+            "task",
+            "goal",
+            "limit",
+            "status",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class GoalSerializer(serializers.ModelSerializer):
+    tasks = TaskSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Goal
+        fields = [
+            "id",
+            "author",
+            "goal",
+            "tasks",
+            "status",
+            "created_at",
+            "updated_at",
+        ]
