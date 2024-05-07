@@ -93,6 +93,7 @@ def userAuthetication(request):
     return Response()
 
 
+#goal view
 @api_view(["GET", "POST"])
 def goal(request):
     if request.method == "GET":
@@ -108,6 +109,31 @@ def goal(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+#goal details view
+@api_view(["GET", "PUT", "DELETE"])
+def goal(request, pk):
+    try:
+        goal = Goal.objects.get(pk=pk)
+    except:
+        return Response({"message": "Goal does not exist"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == "GET":
+        serializer = GoalSerializer(goal)
+        return Response(serializer.data)
+    elif request.method == "PUT":
+        serializer = GoalSerializer(goal, data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=400)
+    elif request.method == "DELETE":
+        goal.delete()
+
+        return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_200_OK)
+    return Response()
+    
 # Task views
 @api_view(["GET", "POST"])
 def task(request, goal_id):
@@ -166,6 +192,6 @@ def taskDetail(request, goal_id, pk):
     elif request.method == "DELETE":
         task.delete()
 
-        return Response("Item sucessfully delete!")
+        return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_200_OK)
 
     return Response()
