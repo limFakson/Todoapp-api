@@ -72,11 +72,6 @@ def userAuthetication(request):
 
     """
 
-    if request.method == "GET":
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-
     if request.method == "POST":
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
