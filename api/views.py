@@ -90,7 +90,7 @@ def userAuthetication(request):
 
 #goal view
 @api_view(["GET", "POST"])
-def goal(request):
+def goals(request):
     if request.method == "GET":
         goals = Goal.objects.all()
         serializer = GoalSerializer(goals, many=True)

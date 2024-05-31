@@ -5,7 +5,8 @@ from django.db import models
 
 
 class Goal(models.Model):
-    goal = models.CharField(max_length=500)
+    name = models.CharField(max_length=500, default='goalname')
+    description = models.CharField(max_length=2000, default='goaldescription')
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     status = models.BooleanField(default=False, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,8 +19,9 @@ class Goal(models.Model):
 class Task(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     goal = models.ForeignKey(Goal, related_name="tasks", on_delete=models.CASCADE)
-    task = models.CharField(max_length=500)
-    limit = models.TimeField()
+    name = models.CharField(max_length=500)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
     status = models.BooleanField(default=False, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)

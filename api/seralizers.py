@@ -37,7 +37,8 @@ class GoalSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "author",
-            "goal",
+            "name",
+            "description",
             "tasks",
             "status",
             "created_at",

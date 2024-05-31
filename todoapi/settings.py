@@ -102,21 +102,52 @@ WSGI_APPLICATION = "todoapi.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+#Determie what database to use based on the choice in env file
+if config('MODE') == "Test":
+    # Determine which database to use based on the .env file
+    if config('DB_CHOICE') == "mysql":
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': config('MYSQL_DB_NAME'),
+                'USER': config('MYSQL_DB_USER'),
+                'PASSWORD': config('MYSQL_DB_PASSWORD', default=''),
+                'HOST': config('MYSQL_DB_HOST', default='localhost'),
+                'PORT': config('MYSQL_DB_PORT', default='3306'),
+                'OPTIONS': {
+                    'sql_mode': 'STRICT_TRANS_TABLES',
+                    'charset': 'utf8mb4',
+                }
+            }
+        }
+    elif config('DB_CHOICE') == "postgres":
+        DATABASES = {
+            'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+else:
+    # Determine which database to use based on the .env file
+    if config('DB_CHOICE') == "postgres":
+        DATABASES = {
+            'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+        }
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
+            }
+        }
 
 # database_url = "postgres://movie_data_user:Dh25mLFMXYgbFTQihX58UQQ3akHInylM@dpg-cmrr61821fec739tb0jg-a.oregon-postgres.render.com/movie_data"
 # # os.environ.get("DATABASE_URL")
 
-# DATABASES = {
-#     'default' : dj_database_url.config(
-#         default = database_url
-#     )
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
