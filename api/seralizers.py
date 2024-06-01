@@ -20,9 +20,10 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "author",
-            "task",
+            "name",
             "goal",
-            "limit",
+            "start_time",
+            "end_time",
             "status",
             "created_at",
             "updated_at",

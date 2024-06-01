@@ -167,7 +167,7 @@ def task(request, goal_id):
 def taskDetail(request, goal_id, pk):
 
     try:
-        task = Task.objects.get(goal_id=goal_id, pk=pk)
+        task = Task.objects.get(pk=pk)
     except Task.DoesNotExist:
         raise NotFound("Task not found")
 
@@ -176,13 +176,12 @@ def taskDetail(request, goal_id, pk):
         return Response(serializer.data)
 
     elif request.method == "PUT":
-        serializer = TaskSerializer(task, data=request.data)
+        serializer = TaskSerializer(task, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=400)
 
     elif request.method == "DELETE":
         task.delete()
@@ -190,3 +189,5 @@ def taskDetail(request, goal_id, pk):
         return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_200_OK)
 
     return Response()
+
+

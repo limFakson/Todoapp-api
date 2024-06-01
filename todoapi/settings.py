@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+from celery import Celery
 
 import dj_database_url
 
@@ -55,7 +56,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "django.contrib.staticfiles",
-    "api.apps.ApiConfig",
+    "api",
 ]
 
 MIDDLEWARE = [
