@@ -22,11 +22,9 @@ from celery.schedules import crontab
 app.conf.beat_schedule = {
     'check-task-status-every-minute': {
         'task': 'api.tasks.check_and_update_task_status',
-        'schedule': crontab(minute='*/03'),
+        'schedule': crontab(minute='*/1'),
     },
 }
-
-
 
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):

@@ -129,6 +129,7 @@ def goal(request, pk):
         return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_200_OK)
     return Response()
     
+from datetime import datetime
 # Task views
 @api_view(["GET", "POST"])
 def task(request, goal_id):
@@ -191,3 +192,14 @@ def taskDetail(request, goal_id, pk):
     return Response()
 
 
+tasks = Task.objects.all()
+now = datetime.now()
+for i in tasks:
+    if str(i.start_time) <= str(now):
+        i.status = "ongoing"
+        i.save()
+        if str(i.end_time) <= str(now):
+            i.status = "completed"
+            i.save()
+        print(True)
+    print(i.start_time)
