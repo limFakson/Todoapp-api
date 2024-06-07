@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Goal, Todo
+from .models import Goal, Todo, Profile
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -47,3 +48,15 @@ class GoalSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["author"]
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields=[
+            "id",
+            "uid",
+            "user",
+            "bio"
+        ]
+        read_only_fields = ["uid", 'user']
