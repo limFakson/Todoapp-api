@@ -16,7 +16,7 @@ class Goal(models.Model):
         return self.name
 
 
-class Task(models.Model):
+class Todo(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     goal = models.ForeignKey(Goal, related_name="tasks", on_delete=models.CASCADE)
     name = models.CharField(max_length=500)
@@ -28,3 +28,9 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
+
+class Profile(models.Model):
+    uid = models.CharField(max_length=12, null=True)
+    bio = models.CharField(max_length=250, null=True)
+    profile_pics = models.URLField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

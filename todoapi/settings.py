@@ -38,7 +38,6 @@ allowed_hosts_str = config("ALLOWED_HOSTS", default="localhost")
 
 # Split the string into a list of allowed hosts
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(" ")]
-
 # os.environ.get("ALLOWED_HOSTS").split(" ")
 
 APPEND_SLASH = True
@@ -68,6 +67,15 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 # CORS_ALLOWED_ORIGINS = [
 #     'https://yourmixjnr.github.io/To-do_List_HTML-CSS-JS/',

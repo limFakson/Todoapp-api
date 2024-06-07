@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Task, Goal
+from .models import Goal, Todo
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,10 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password"]
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class TodoSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Task
+        model = Todo
         fields = [
             "id",
             "author",
@@ -28,10 +28,11 @@ class TaskSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+        read_only_fields = ["author", "goal"]
 
 
 class GoalSerializer(serializers.ModelSerializer):
-    tasks = TaskSerializer(many=True, read_only=True)
+    todos = TodoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Goal
@@ -40,8 +41,9 @@ class GoalSerializer(serializers.ModelSerializer):
             "author",
             "name",
             "description",
-            "tasks",
+            "todos",
             "status",
             "created_at",
             "updated_at",
         ]
+        read_only_fields = ["author"]

@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import Task, Goal
+from .models import Todo, Goal, Profile
 
 # Register your models here.
-admin.site.register(Task)
+admin.site.register(Todo)
 admin.site.register(Goal)
+
 
