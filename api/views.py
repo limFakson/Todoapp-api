@@ -12,10 +12,13 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.contrib.auth.models import User
-from .seralizers import UserSerializer, GoalSerializer, TodoSerializer
-from .models import Goal, Todo
+from .seralizers import UserSerializer, GoalSerializer, TodoSerializer, ProfileSerializer
+from .models import Goal, Todo, Profile
 
 
+num = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+alpha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+                    
 # Create your views here.
 # Api overview of all api in the backend
 @api_view(["GET"])
@@ -56,6 +59,22 @@ def userLogin(request):
 
     if user is not None:
         token, created = Token.objects.get_or_create(user=user)
+        username = user.username
+        profile = Profile.objects.filter(user=user).exists()
+        if profile is False:
+            cap = username.upper()
+            name_list = list(cap)
+            n = random.sample(name_list, k=2) + random.sample(num, k=5) + random.sample(alpha, k=2)
+            n = list(map(str, n))
+            q = ''.join(n)
+            data = {"uid":q, "user":username}
+            serializer = ProfileSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save(uid=q, user=user)
+                detail = serializer.data
+                return Response(
+                {"message": "Login successful", "token": token.key, "user_id": user.id, "uid":detail["uid"]},
+                status=status.HTTP_200_OK)
         return Response(
             {"message": "Login successful", "token": token.key, "user_id": user.id},
             status=status.HTTP_200_OK,
@@ -70,7 +89,7 @@ def userLogin(request):
 @csrf_protect
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def userAuthetication(request):
+def userregistration(request):
     """
     Handling Auth of the Users
 
@@ -90,9 +109,30 @@ def userAuthetication(request):
                 return Response(serializer_user.data, status=200)
             except:
                 return Response({"message":"User already exist"}, status=status.HTTP_400_BAD_REQUEST)
+            
         else:
             return Response(serializer.errors, status=400)
 
+
+#profile view
+@api_view(["GET", "PUT"])
+def profile(request):
+    try:
+        user = request.user
+    except:
+        return Response({"message":"Authorization credentials were not provided"}, 
+                        status=status.HTTP_401_UNAUTHORIZED)
+        
+    if request.method == "GET":
+        details = Profile.objects.filter(user=user)
+        serializer = ProfileSerializer(details, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == "PUT":
+        serializer = ProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
 
 #goal view
 @api_view(["GET", "POST"])
@@ -100,13 +140,13 @@ def goals(request):
     try:
         user = request.user
     except:
-        return Response({"message":"Authentication credentials were not provided. Use token keyword in authorisation"}, 
+        return Response({"message":"Authorization credentials were not provided."}, 
                         status=status.HTTP_401_UNAUTHORIZED)
     
     if request.method == "GET":
         goals = Goal.objects.filter(author=user)
         serializer = GoalSerializer(goals, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == "POST":
         serializer = GoalSerializer(data=request.data)
@@ -126,21 +166,21 @@ def goal(request, pk):
     
     if request.method == "GET":
         serializer = GoalSerializer(goal)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == "PUT":
         serializer = GoalSerializer(goal, data=request.data)
         
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=400)
         
     elif request.method == "DELETE":
         goal.delete()
 
-        return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_200_OK)
+        return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_204_NO_CONTENT)
     return Response()
     
 from datetime import datetime
@@ -163,7 +203,7 @@ def task(request, goal_id):
     if request.method == "GET":
         tasks = goal.tasks.filter(author=user)
         serializer = TodoSerializer(tasks, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == "POST":
         serializer = TodoSerializer(data=request.data)
@@ -190,19 +230,19 @@ def taskDetail(request, goal_id, pk):
 
     if request.method == "GET":
         serializer = TodoSerializer(task)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == "PUT":
         serializer = TodoSerializer(task, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=400)
 
     elif request.method == "DELETE":
         task.delete()
-        return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_200_OK)
+        return Response({"message":"goal sucessfully delete!"}, status=status.HTTP_204_NO_CONTENT)
 
     return Response({"message":"Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 

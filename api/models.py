@@ -32,5 +32,5 @@ class Todo(models.Model):
 class Profile(models.Model):
     uid = models.CharField(max_length=12, null=True)
     bio = models.CharField(max_length=250, null=True)
-    profile_pics = models.URLField(max_length=200)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile_pics = models.URLField(max_length=200, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
