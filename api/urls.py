@@ -10,5 +10,7 @@ urlpatterns = [
     path("auth/reg", views.userregistration, name="register"),
     path("auth/login", views.userLogin, name="clogin"),
     path("auth/profile", views.profile, name="profile"),
-    path("", views.userId, name="get-id"),
+    path("auth/profile/<int:pk>", views.profiledetail, name="profile-detail"),
+    path("auth/logout", views.logout, name="logout"),
+    path("auth/reset", views.resetpassword, name="reset")
 ]

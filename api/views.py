@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 import re,random
 
 from rest_framework.decorators import api_view, permission_classes
@@ -59,6 +59,7 @@ def userLogin(request):
 
     if user is not None:
         token, created = Token.objects.get_or_create(user=user)
+        login(request, user)
         username = user.username
         profile = Profile.objects.filter(user=user).exists()
         if profile is False:
@@ -83,6 +84,33 @@ def userLogin(request):
         return Response(
             {"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
         )
+
+
+#logut view
+@api_view(['POST'])
+def logout(request):
+    user = request.user
+    token = Token.objects.filter(user=user).delete()
+    logout(request)
+    return Response({"message":"logout successfull"}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def resetpassword(request):
+    data = request.data
+    
+    if 'username' not in data or 'password' not in data:
+        return Response({'error': 'Username and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(username=data["username"])
+        user.set_password(data["password"])
+        user.save()
+        return Response({'message': "Password successfully changed."}, status=status.HTTP_200_OK)
+    
+    except User.DoesNotExist:
+        return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 # Registration Authetication view
@@ -115,7 +143,7 @@ def userregistration(request):
 
 
 #profile view
-@api_view(["GET", "PUT"])
+@api_view(["GET"])
 def profile(request):
     try:
         user = request.user
@@ -124,14 +152,25 @@ def profile(request):
                         status=status.HTTP_401_UNAUTHORIZED)
         
     if request.method == "GET":
-        details = Profile.objects.filter(user=user)
-        serializer = ProfileSerializer(details, many=True)
+        detail = Profile.objects.filter(user=user)
+        serializer = ProfileSerializer(detail, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == "PUT":
-        serializer = ProfileSerializer(data=request.data)
+    
+    return Response({"message":"Method Not Allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+#profile detail
+@api_view(["PUT"])
+def profiledetail(request, pk):
+    try:
+        profile = Profile.objects.get(pk=pk)
+        serializer = ProfileSerializer(profile, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except:
+        return Response({"message":"Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    
         
 
 #goal view
@@ -223,8 +262,8 @@ def task(request, goal_id):
 def taskDetail(request, goal_id, pk):
 
     try:
+        user = request.user
         task = Todo.objects.get(pk=pk)
-        user_id = request.user.id
     except Todo.DoesNotExist:
         raise NotFound("Task not found")
 
@@ -247,10 +286,6 @@ def taskDetail(request, goal_id, pk):
     return Response({"message":"Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-@api_view(['GET'])
-def userId(request):
-    userid = request.user.id
-    return Response({"userid":userid})
     
 # tasks = Task.objects.all()
 # now = datetime.now()
