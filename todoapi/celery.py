@@ -1,6 +1,5 @@
 from __future__ import absolute_import, unicode_literals
 import os
-
 from celery import Celery
 
 # Set the default Django settings module for the 'celery' program.
@@ -14,18 +13,9 @@ app = Celery('todoapi')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Load task modules from all registered Django apps.
+# Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
-from celery.schedules import crontab
-
-app.conf.beat_schedule = {
-    'check-task-status-every-minute': {
-        'task': 'api.tasks.check_and_update_task_status',
-        'schedule': crontab(minute='*/1'),
-    },
-}
-
-@app.task(bind=True, ignore_result=True)
+@app.task(bind=True)
 def debug_task(self):
-    print('Request: {0!r}'.format(self.request))
+    print(f'Request: {self.request!r}')
