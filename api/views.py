@@ -129,14 +129,21 @@ def userregistration(request):
             username = serializer.validated_data.get("username")
             email = serializer.validated_data.get("email")
             password = serializer.validated_data.get("password")
-            try:
-                new_user = User.objects.create_user(
-                    username=username, email=email, password=password
-                )
-                serializer_user = UserSerializer(new_user)
-                return Response(serializer_user.data, status=200)
-            except:
-                return Response({"message":"User already exist"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            #filter for existing user
+            if User.objects.filter(username=username).exists():
+                return Response({"message":"Username already taken"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif User.objects.filter(email=email).exists():
+                return Response({"message":"Email associated with another account"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                try:
+                    new_user = User.objects.create_user(
+                        username=username, email=email, password=password
+                    )
+                    serializer_user = UserSerializer(new_user)
+                    return Response(serializer_user.data, status=200)
+                except:
+                    return Response({"message":"User already exist"}, status=status.HTTP_400_BAD_REQUEST)
             
         else:
             return Response(serializer.errors, status=400)
@@ -153,6 +160,8 @@ def profile(request):
         
     if request.method == "GET":
         detail = Profile.objects.filter(user=user)
+        if not detail.exists():
+            return Response({"message":"Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = ProfileSerializer(detail, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
