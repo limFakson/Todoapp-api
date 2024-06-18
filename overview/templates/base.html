@@ -3,9 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+    <title>API Documentation</title>
+    <style>
+      * {
+        font-family: Lato;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #2b2d40;
+        color: #fef6ee;
+      }
+      .proj-name {
+        color: #f8b179;
+        text-decoration: solid;
+        font-weight: 800;
+        font-size: 30px;
+      }
+    </style>
   </head>
-  <body>
-    <h1>Hello</h1>
+  <body class="">
+    <header class="p-6">
+      <div class="name">
+        <h1 class="proj-name">EASSILLI TO-DO</h1>
+      </div>
+    </header>
+    <main>
+      <div class="main flex p-4">
+        <div class="navs overflow-y-scroll">
+          <div class="header">
+            <h2 class="text-lg">To-Do Api Documentation</h2>
+          </div>
+          <nav class="block relative"></nav>
+        </div>
+      </div>
+    </main>
   </body>
 </html>
