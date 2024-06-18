@@ -22,6 +22,7 @@ alpha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', '
 # Create your views here.
 # Api overview of all api in the backend
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def apiOverview(request):
     api_urls = {
         "Register": "/auth/reg(request method sent POST)",
